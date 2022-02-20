@@ -1,3 +1,5 @@
+rootProject.name = "archive-patcher"
+
 include ':sharedtest'
 include ':shared'
 include ':applier'
