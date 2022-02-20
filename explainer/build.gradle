@@ -1,11 +1,11 @@
-// explainer module
-apply plugin: 'java'
+plugins {
+	id "java"
+}
 
 dependencies {
-    compile project(':generator')
-    compile project(':shared')
+	implementation project(':generator')
+	implementation project(':shared')
 
-    testCompile 'junit:junit:4.12'
-    testCompile project(':sharedtest')
+	testImplementation 'junit:junit:4.12'
+	testImplementation project(':sharedtest')
 }
-// EOF

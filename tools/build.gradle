@@ -1,22 +1,21 @@
-// tools module
-
-apply plugin: 'java'
+plugins {
+	id "java"
+}
 
 def mainClassName = 'com.google.archivepatcher.tools.FileByFileTool'
 jar {
-    manifest {
-        attributes "Main-Class": mainClassName
-    }
+	manifest {
+		attributes "Main-Class": mainClassName
+	}
 
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+	from {
+		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+	}
 }
 
 dependencies {
-    compile project(':applier')
-    compile project(':explainer')
-    compile project(':generator')
-    compile project(':shared')
+	implementation project(':applier')
+	implementation project(':explainer')
+	implementation project(':generator')
+	implementation project(':shared')
 }
-// EOF

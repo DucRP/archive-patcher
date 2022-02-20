@@ -1,22 +1,10 @@
-// generator module
-
-apply plugin: 'java'
+plugins {
+	id "java"
+}
 
 dependencies {
-    compile project(':shared')
+	implementation project(':shared')
 
-    testCompile 'junit:junit:4.12'
-    testCompile project(':sharedtest')
+	testImplementation 'junit:junit:4.12'
+	testImplementation project(':sharedtest')
 }
-
-task copyTestResources(type: Copy) {
-    // AS/IntelliJ workaround: https://code.google.com/p/android/issues/detail?id=64887#c26
-    if (System.properties['idea.platform.prefix'] != null) {
-        from sourceSets.test.resources
-        into sourceSets.test.output.classesDir
-    }
-}
-
-processTestResources.dependsOn copyTestResources
-
-// EOF
