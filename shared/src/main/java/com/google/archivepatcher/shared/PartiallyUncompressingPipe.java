@@ -92,7 +92,6 @@ public class PartiallyUncompressingPipe implements Closeable {
       uncompressor.setNowrap(mode == Mode.UNCOMPRESS_NOWRAP);
       uncompressor.uncompress(in, out);
     }
-    out.flush();
     return out.getNumBytesWritten() - bytesWrittenBefore;
   }
 
