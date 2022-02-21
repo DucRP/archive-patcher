@@ -16,6 +16,7 @@ package com.google.archivepatcher.generator;
 
 import com.google.archivepatcher.shared.ByteArrayInputStreamFactory;
 import com.google.archivepatcher.shared.DefaultDeflateCompatibilityWindow;
+import com.google.archivepatcher.shared.DeflateCompressor;
 import com.google.archivepatcher.shared.JreDeflateParameters;
 import com.google.archivepatcher.shared.MultiViewInputStreamFactory;
 import com.google.archivepatcher.shared.RandomAccessFileInputStreamFactory;
@@ -161,21 +162,27 @@ public class DefaultDeflateCompressionDiviner {
       MultiViewInputStreamFactory compressedDataInputStreamFactory) throws IOException {
     byte[] copyBuffer = new byte[32 * 1024];
     // Iterate over all relevant combinations of nowrap, strategy and level.
+    DeflateCompressor deflateCompressor = new DeflateCompressor();
+    deflateCompressor.setCaching(true);
     for (boolean nowrap : new boolean[] {true, false}) {
       Inflater inflater = new Inflater(nowrap);
-      Deflater deflater = new Deflater(0, nowrap);
+      deflateCompressor.setNowrap(nowrap);
 
       strategy_loop:
       for (int strategy : new int[] {0, 1, 2}) {
-        deflater.setStrategy(strategy);
+        deflateCompressor.setStrategy(strategy);
         for (int level : LEVELS_BY_STRATEGY.get(strategy)) {
-          deflater.setLevel(level);
+          deflateCompressor.setCompressionLevel(level);
           inflater.reset();
-          deflater.reset();
           try {
+            Deflater deflater = deflateCompressor.createOrResetDeflater();
             if (matches(inflater, deflater, compressedDataInputStreamFactory, copyBuffer)) {
-              end(inflater, deflater);
+              inflater.end();
+              deflateCompressor.release();
               return JreDeflateParameters.of(level, strategy, nowrap);
+            }
+            if (!deflateCompressor.isCaching()) {
+              deflater.end();
             }
           } catch (ZipException e) {
             // Parse error in input. The only possibilities are corruption or the wrong nowrap.
@@ -184,22 +191,10 @@ public class DefaultDeflateCompressionDiviner {
           }
         }
       }
-      end(inflater, deflater);
+      inflater.end();
     }
+    deflateCompressor.release();
     return null;
-  }
-
-  /**
-   * Closes the (de)compressor and discards any unprocessed input. This method should be called when
-   * the (de)compressor is no longer being used. Once this method is called, the behavior
-   * De/Inflater is undefined.
-   *
-   * @see Inflater#end
-   * @see Deflater#end
-   */
-  private static void end(Inflater inflater, Deflater deflater) {
-    inflater.end();
-    deflater.end();
   }
 
   /**

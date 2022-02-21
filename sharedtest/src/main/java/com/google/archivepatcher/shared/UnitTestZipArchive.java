@@ -14,6 +14,7 @@
 
 package com.google.archivepatcher.shared;
 
+import java.util.zip.Deflater;
 import org.junit.Assert;
 
 import java.io.ByteArrayInputStream;
@@ -155,7 +156,14 @@ public class UnitTestZipArchive {
   public static byte[] makeTestZip(List<UnitTestZipEntry> entriesInFileOrder) {
     try {
       ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-      ZipOutputStream zipOut = new ZipOutputStream(buffer);
+      ZipOutputStream zipOut = new ZipOutputStream(buffer) {
+        @Override
+        public void closeEntry() throws IOException {
+          super.closeEntry();
+          // zlib#275
+          def = new Deflater(0, true);
+        }
+      };
       for (UnitTestZipEntry unitTestEntry : entriesInFileOrder) {
         ZipEntry zipEntry = new ZipEntry(unitTestEntry.path);
         zipOut.setLevel(unitTestEntry.level);

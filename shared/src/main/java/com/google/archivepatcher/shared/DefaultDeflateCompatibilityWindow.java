@@ -256,7 +256,7 @@ public class DefaultDeflateCompatibilityWindow {
    * there is no concept of compression "level" with the {@link Deflater#HUFFMAN_ONLY} strategy.
    * @return an independent copy of the corpus, as an array of bytes
    */
-  public byte[] getCorpus() {
+  public static byte[] getCorpus() {
     return CorpusHolder.CORPUS_INSTANCE.clone();
   }
 

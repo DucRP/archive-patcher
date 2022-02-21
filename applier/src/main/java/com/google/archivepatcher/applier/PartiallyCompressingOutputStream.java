@@ -136,15 +136,15 @@ public class PartiallyCompressingOutputStream extends FilterOutputStream {
       JreDeflateParameters parameters = nextCompressedRange.getMetadata();
       if (deflater == null) {
         deflater = new Deflater(parameters.level, parameters.nowrap);
-      } else if (lastDeflateParameters.nowrap != parameters.nowrap) {
-        // Last deflater must be destroyed because nowrap settings do not match.
+      } else if (parameters.requiresDeflaterChange(lastDeflateParameters)) {
         deflater.end();
         deflater = new Deflater(parameters.level, parameters.nowrap);
+      } else if (parameters != lastDeflateParameters) {
+        // Deflater will already have been reset at the end of this method, no need to do it again.
+        // Just set up the right parameters.
+        deflater.setLevel(parameters.level);
+        deflater.setStrategy(parameters.strategy);
       }
-      // Deflater will already have been reset at the end of this method, no need to do it again.
-      // Just set up the right parameters.
-      deflater.setLevel(parameters.level);
-      deflater.setStrategy(parameters.strategy);
       deflaterOut = new DeflaterOutputStream(normalOut, deflater, compressionBufferSize);
     }
 

@@ -216,14 +216,6 @@ public class DeflateCompressorTest {
   }
 
   @Test
-  public void testCreateOrResetDeflater_Cached() {
-    compressor.setCaching(true);
-    Deflater deflater1 = compressor.createOrResetDeflater();
-    Deflater deflater2 = compressor.createOrResetDeflater();
-    Assert.assertSame(deflater1, deflater2);
-  }
-
-  @Test
   public void testRelease() {
     compressor.setCaching(true);
     Deflater deflater1 = compressor.createOrResetDeflater();

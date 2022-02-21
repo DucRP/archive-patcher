@@ -188,7 +188,7 @@ public class DeflateCompressor implements Compressor {
    * @param caching whether to enable caching
    */
   public void setCaching(boolean caching) {
-    this.caching = caching;
+    this.caching = caching && !ZLib275.isBuggy;
   }
 
   /**
@@ -196,7 +196,7 @@ public class DeflateCompressor implements Compressor {
    * future use.
    * @return the deflater
    */
-  protected Deflater createOrResetDeflater() {
+  public Deflater createOrResetDeflater() {
     Deflater result = deflater;
     if (result == null) {
       result = new Deflater(compressionLevel, nowrap);
@@ -223,13 +223,17 @@ public class DeflateCompressor implements Compressor {
   @Override
   public void compress(InputStream uncompressedIn, OutputStream compressedOut) throws IOException {
     byte[] buffer = new byte[inputBufferSize];
+    Deflater deflater = createOrResetDeflater();
     DeflaterOutputStream deflaterOut =
-        new DeflaterOutputStream(compressedOut, createOrResetDeflater(), outputBufferSize);
+        new DeflaterOutputStream(compressedOut, deflater, outputBufferSize);
     int numRead = 0;
     while ((numRead = uncompressedIn.read(buffer)) >= 0) {
       deflaterOut.write(buffer, 0, numRead);
     }
     deflaterOut.finish();
     deflaterOut.flush();
+    if (!caching) {
+      deflater.end();
+    }
   }
 }

@@ -241,4 +241,11 @@ public enum JreDeflateParameters {
         Integer.parseInt(parts[1].split("=")[1]),
         Boolean.parseBoolean(parts[2].split("=")[1]));
   }
+
+  public boolean requiresDeflaterChange(JreDeflateParameters p) {
+    if (ZLib275.isBuggy) {
+      return this != p;
+    }
+    return nowrap != p.nowrap;
+  }
 }
