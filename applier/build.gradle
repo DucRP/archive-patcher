@@ -1,10 +1,36 @@
 plugins {
-	id "java"
+	id "java-library"
+	id "maven-publish"
+}
+
+configurations {
+	internal
+	runtimeClasspath.extendsFrom(internal)
+	compileClasspath.extendsFrom(internal)
+	testImplementation.extendsFrom(internal)
 }
 
 dependencies {
-	implementation project(':shared')
+	internal project(':shared')
 
 	testImplementation 'junit:junit:4.12'
 	testImplementation project(':sharedtest')
+}
+
+jar {
+	archiveBaseName.set("archive-patcher-applier")
+
+	dependsOn configurations.internal
+	from configurations.internal.collect { it.isDirectory() ? it : zipTree(it) }
+
+	from "../LICENSE"
+}
+
+publishing {
+	publications {
+		maven(MavenPublication) {
+			from components.java
+			artifactId "archive-patcher-applier"
+		}
+	}
 }

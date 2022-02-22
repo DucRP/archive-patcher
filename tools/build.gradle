@@ -1,21 +1,41 @@
 plugins {
-	id "java"
+	id "java-library"
+	id "maven-publish"
 }
 
-def mainClassName = 'com.google.archivepatcher.tools.FileByFileTool'
-jar {
-	manifest {
-		attributes "Main-Class": mainClassName
-	}
-
-	from {
-		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-	}
+configurations {
+	internal
+	runtimeClasspath.extendsFrom(internal)
+	compileClasspath.extendsFrom(internal)
+	testImplementation.extendsFrom(internal)
 }
 
 dependencies {
-	implementation project(':applier')
-	implementation project(':explainer')
-	implementation project(':generator')
-	implementation project(':shared')
+	internal project(':applier')
+	internal project(':explainer')
+	internal project(':generator')
+	internal project(':shared')
+}
+
+jar {
+	manifest {
+		attributes "Main-Class": "com.google.archivepatcher.tools.FileByFileTool"
+	}
+
+	duplicatesStrategy = "EXCLUDE"
+	archiveBaseName.set("archive-patcher-all")
+
+	dependsOn configurations.internal
+	from configurations.internal.collect { it.isDirectory() ? it : zipTree(it) }
+
+	from "../LICENSE"
+}
+
+publishing {
+	publications {
+		maven(MavenPublication) {
+			from components.java
+			artifactId "archive-patcher-all"
+		}
+	}
 }

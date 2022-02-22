@@ -1,43 +1,10 @@
-plugins {
-	id "java"
-	id "maven-publish"
-}
-
-version = "1.2-SNAPSHOT"
-group = "net.runelite"
-
-subprojects.each { subproject -> evaluationDependsOn(subproject.path) }
-jar.dependsOn subprojects.tasks['classes']
-jar {
-	archiveBaseName.set(project.name)
-	subprojects.each { subproject ->
-		from subproject.sourceSets.main.output
-	}
-	from "LICENSE"
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-	archiveBaseName.set(project.name)
-	archiveClassifier.set('sources')
-	subprojects.each { subproject ->
-		from subproject.sourceSets.main.allSource
-	}
-	from "LICENSE"
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-	archiveBaseName.set(project.name)
-	archiveClassifier.set('javadoc')
-	subprojects.each { subproject ->
-		from subproject.javadoc.destinationDir
-	}
-	from "LICENSE"
-}
-
 allprojects {
 	repositories {
 		mavenCentral()
 	}
+
+	version = "1.2-SNAPSHOT"
+	group = "net.runelite"
 
 	tasks.withType(AbstractArchiveTask) {
 		preserveFileTimestamps = false
@@ -49,16 +16,3 @@ allprojects {
 	}
 }
 
-artifacts {
-	archives jar
-	archives sourcesJar
-	archives javadocJar
-}
-
-publishing {
-	publications {
-		MyPublication(MavenPublication) {
-			from components.java
-		}
-	}
-}
