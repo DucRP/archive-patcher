@@ -4,7 +4,7 @@ allprojects {
 	}
 
 	version = "1.2-SNAPSHOT"
-	group = "net.runelite"
+	group = "net.runelite.archive-patcher"
 
 	tasks.withType(AbstractArchiveTask) {
 		preserveFileTimestamps = false
