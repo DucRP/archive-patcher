@@ -3,7 +3,7 @@ allprojects {
 		mavenCentral()
 	}
 
-	version = "1.2-SNAPSHOT"
+	version = "1.2"
 	group = "net.runelite.archive-patcher"
 
 	tasks.withType(AbstractArchiveTask) {
